@@ -8,21 +8,9 @@ function getpriorities(letter::Char)
     return ascii_number > 96 ? ascii_number - 96 : ascii_number - 38
 end
 
-function singlerucksackreorganization(file::String)
-    total_priority = 0
-    open(file) do f
-        while ! eof(f)
-            rucksack = readline(f)
-            first_half, second_half = rucksackdivider(rucksack)
-            common_item = first(intersect(first_half, second_half))
-            total_priority += getpriorities(common_item)
-        end
-    end
-    return total_priority
-end
-
-function grouprucksackreorganization(file::String)
-    total_priority = 0
+function rucksackreorganization(file::String)
+    single_total_priority = 0
+    group_total_priority = 0
     open(file) do f
         group_rucksack = String[]
         while ! eof(f)
@@ -30,16 +18,18 @@ function grouprucksackreorganization(file::String)
             push!(group_rucksack, rucksack)
             if length(group_rucksack) == 3
                 badge = first(intersect(group_rucksack[:1], group_rucksack[:2], group_rucksack[:3]))
-                total_priority += getpriorities(badge)
+                group_total_priority += getpriorities(badge)
                 group_rucksack = String[]
             end
+            first_half, second_half = rucksackdivider(rucksack)
+            common_item = first(intersect(first_half, second_half))
+            single_total_priority += getpriorities(common_item)
         end
     end
-    return total_priority
+    return single_total_priority, group_total_priority
 end
 
-total_priority = singlerucksackreorganization("./input")
-println("Total priority: ", total_priority)
-group_total_priority = grouprucksackreorganization("./input")
+single_total_priority, group_total_priority = rucksackreorganization("./input")
+println("Total priority: ", single_total_priority)
 println("Group total priority: ", group_total_priority)
 
